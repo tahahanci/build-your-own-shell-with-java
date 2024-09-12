@@ -31,6 +31,9 @@ public class Main {
                         System.out.println(typeCommand + ": not found");
                     }
                 }
+            } else if (input.startsWith(Commands.PWD.getCommandName())) {
+                String path = CommandChecker.printWorkingDirectory();
+                System.out.println(path);
             } else {
                 String path = System.getenv("PATH");
                 if (CommandChecker.findExternalCommandInPath(command, path)) {

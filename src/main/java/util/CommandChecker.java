@@ -4,6 +4,8 @@ import enums.Commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class CommandChecker {
@@ -68,5 +70,10 @@ public class CommandChecker {
             }
         }
         return false;
+    }
+
+    public static String printWorkingDirectory() {
+        Path currentPath = Paths.get("");
+        return currentPath.toAbsolutePath().toString();
     }
 }
