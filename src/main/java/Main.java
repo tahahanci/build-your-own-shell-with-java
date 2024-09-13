@@ -8,6 +8,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
+        String currentDirectory = System.getProperty("user.dir");
 
         while (true) {
             System.out.print("$ ");
@@ -16,10 +17,20 @@ public class Main {
             String[] commandWithArgs = input.split(" ");
             String command = commandWithArgs[0];
 
-            if (input.startsWith(Commands.EXIT.getCommandName())) {
+            if (command.equals(Commands.EXIT.getCommandName())) {
                 CommandChecker.terminateProgram();
-            } else if (input.startsWith(Commands.ECHO.getCommandName())) {
-                CommandChecker.printInput(input.substring(Commands.ECHO.getCommandName().length() + 1));
+            } else if (command.equals(Commands.ECHO.getCommandName())) {
+                String message = input.substring(Commands.ECHO.getCommandName().length()).trim();
+                CommandChecker.printInput(message);
+            } else if (command.equals(Commands.CD.getCommandName())) {
+                if (commandWithArgs.length > 1) {
+                    currentDirectory = CommandChecker.changeDirectory(currentDirectory, commandWithArgs[1]);
+                } else {
+                    System.out.println("cd: No directory specified");
+                }
+            } else if (command.equals(Commands.PWD.getCommandName())) {
+                String currentPath = CommandChecker.printWorkingDirectory(currentDirectory);
+                System.out.println(currentPath);
             } else if (input.startsWith(Commands.TYPE.getCommandName())) {
                 String typeCommand = input.substring(5);
 
@@ -31,14 +42,11 @@ public class Main {
                         System.out.println(typeCommand + ": not found");
                     }
                 }
-            } else if (input.startsWith(Commands.PWD.getCommandName())) {
-                String path = CommandChecker.printWorkingDirectory();
-                System.out.println(path);
             } else {
                 String path = System.getenv("PATH");
                 if (CommandChecker.findExternalCommandInPath(command, path)) {
                     try {
-                        CommandChecker.executeExternalCommand(commandWithArgs);
+                        CommandChecker.executeExternalCommand(commandWithArgs, currentDirectory);
                     } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }

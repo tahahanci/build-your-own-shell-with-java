@@ -32,7 +32,7 @@ public final class CommandChecker {
     }
 
     public static boolean findCommandInPath(String command, String path) {
-        String[] directories = path.split(":");
+        String[] directories = path.split(File.pathSeparator);
 
         for (String directory : directories) {
             File file = new File(directory, command);
@@ -49,8 +49,10 @@ public final class CommandChecker {
                 .anyMatch(cmd -> cmd.getCommandName().equals(command));
     }
 
-    public static void executeExternalCommand(String[] commandWithArgs) throws IOException, InterruptedException {
+    public static void executeExternalCommand(String[] commandWithArgs, String currentDirectory)
+            throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(commandWithArgs);
+        processBuilder.directory(new File(currentDirectory));
         processBuilder.inheritIO();
         Process process = processBuilder.start();
         int exitCode = process.waitFor();
@@ -61,7 +63,7 @@ public final class CommandChecker {
     }
 
     public static boolean findExternalCommandInPath(String command, String path) {
-        String[] directories = path.split(":");
+        String[] directories = path.split(File.pathSeparator);
 
         for (String directory : directories) {
             File file = new File(directory, command);
@@ -72,8 +74,31 @@ public final class CommandChecker {
         return false;
     }
 
-    public static String printWorkingDirectory() {
-        Path currentPath = Paths.get("");
-        return currentPath.toAbsolutePath().toString();
+    public static String printWorkingDirectory(String currentDirectory) {
+        return currentDirectory;
+    }
+
+    public static String changeDirectory(String currentDirectory, String path) {
+        String homeDirectory = System.getenv("HOME");
+
+        if (path.equals("~")) {
+            path = homeDirectory;
+        } else if (path.startsWith("~" + File.separator)) {
+            path = homeDirectory + path.substring(1);
+        }
+
+        Path newPath = Paths.get(path);
+
+        if (!newPath.isAbsolute()) {
+            newPath = Paths.get(currentDirectory).resolve(newPath).normalize();
+        }
+
+        File newDir = newPath.toFile();
+        if (newDir.exists() && newDir.isDirectory()) {
+            return newDir.getAbsolutePath();
+        } else {
+            System.out.println("cd: " + path + ": No such file or directory");
+            return currentDirectory;
+        }
     }
 }
