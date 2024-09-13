@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-public class CommandChecker {
+public final class CommandChecker {
 
     public static boolean isValidCommand(String input) {
         return Arrays.stream(Commands.values())
